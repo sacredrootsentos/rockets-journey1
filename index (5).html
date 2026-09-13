@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rocket's Big Journey</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  background: #1a1a1a; color: #e8e6e0;
+  min-height: 100vh; -webkit-text-size-adjust: 100%;
+}
+.shell { max-width: 520px; margin: 0 auto; padding-bottom: 3rem; }
+.hdr { text-align: center; padding: 1.5rem 1.2rem 1rem; }
+.hdr-banner {
+  display: block; width: 100%; max-width: 520px;
+  margin: 0 auto 0.9rem; border-radius: 10px;
+}
+.hdr-banner.missing { display: none; }
+.hdr-icon { font-size: 1.8rem; display: block; margin-bottom: 0.4rem; }
+.hdr h1 { font-size: 1.5rem; font-weight: 600; color: #f0ede8; margin-bottom: 0.3rem; line-height: 1.2; }
+.hdr p { font-size: 0.8rem; color: #888; line-height: 1.5; }
+.prog-wrap { padding: 0 1.2rem 0.6rem; }
+.prog-row { display: flex; justify-content: space-between; font-size: 0.72rem; color: #888; margin-bottom: 5px; }
+.prog-bar { height: 5px; background: #333; border-radius: 3px; overflow: hidden; }
+.prog-fill { height: 100%; background: #2a9d8f; border-radius: 3px; transition: width 0.5s ease; }
+.dots-row { display: flex; gap: 5px; justify-content: center; padding: 0 1.2rem 0.8rem; flex-wrap: wrap; }
+.dot {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 1px solid #444; background: transparent;
+  cursor: pointer; font-size: 0.72rem; font-family: inherit; color: #888;
+  transition: all 0.15s;
+}
+.dot:hover { border-color: #2a9d8f; color: #2a9d8f; }
+.dot.done { background: #2a9d8f; border-color: #2a9d8f; color: #fff; }
+.dot.active { border: 2px solid #4fd1c5; color: #4fd1c5; font-weight: 600; }
+.how-strip {
+  margin: 0 1rem 0.8rem;
+  background: #0d2220; border: 1px solid #1a4a44;
+  border-radius: 10px; padding: 0.75rem 1rem;
+  font-size: 0.82rem; color: #5ecdc4; line-height: 1.6;
+}
+.how-strip strong { color: #7ee8e0; }
+.chapter-card {
+  margin: 0 1rem 0.75rem;
+  background: #242424; border: 1px solid #333; border-radius: 12px; overflow: hidden;
+}
+.card-head { padding: 0.9rem 1.1rem 0.7rem; border-bottom: 1px solid #2e2e2e; }
+.card-tag { font-size: 0.68rem; font-weight: 600; color: #2a9d8f; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 3px; }
+.card-title { font-size: 1.25rem; font-weight: 600; color: #f0ede8; line-height: 1.2; }
+.card-body { padding: 1rem 1.1rem; }
+.scene-icon { font-size: 1.8rem; text-align: center; padding: 0.2rem 0 0.6rem; }
+.story-text { font-size: 0.95rem; line-height: 1.75; color: #d8d5d0; margin-bottom: 1rem; }
+
+/* ── Map explore links ── */
+.map-box {
+  background: #14232e; border: 1px solid #1e4256;
+  border-radius: 8px; padding: 0.7rem 0.85rem; margin-bottom: 0.85rem;
+}
+.map-lbl { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.05em; color: #56a8d4; margin-bottom: 6px; }
+.map-links { display: flex; flex-wrap: wrap; gap: 6px; }
+.map-link {
+  display: inline-block;
+  background: #1c3a4d; border: 1px solid #2b5a75;
+  border-radius: 20px; padding: 5px 11px;
+  font-size: 0.76rem; color: #8fd0f0; text-decoration: none;
+  transition: background 0.15s;
+}
+.map-link:hover { background: #26506b; color: #b3e2ff; }
+.map-link:active { transform: scale(0.97); }
+
+/* ── Session tools ── */
+.tool-box {
+  background: #14232e; border: 1px solid #1e4256;
+  border-radius: 8px; padding: 0.85rem; margin-bottom: 0.85rem;
+}
+.tool-lbl { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.05em; color: #56a8d4; margin-bottom: 8px; }
+.tool-row { display: flex; gap: 7px; margin-bottom: 7px; flex-wrap: wrap; }
+.tool-field { flex: 1; min-width: 120px; }
+.tool-field label { display: block; font-size: 0.65rem; color: #6d8fa5; margin-bottom: 3px; }
+.tool-input {
+  width: 100%; background: #1c2b36; border: 1px solid #2b4a5e;
+  border-radius: 6px; color: #cfe4f2; font-size: 0.78rem;
+  font-family: inherit; padding: 6px 8px;
+}
+.tool-input::placeholder { color: #56707f; }
+.tool-btns { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 3px; }
+.tool-btn {
+  flex: 1; min-width: 130px; text-align: center;
+  background: #1c3a4d; border: 1px solid #2b5a75; border-radius: 7px;
+  padding: 9px 10px; font-size: 0.78rem; color: #8fd0f0;
+  text-decoration: none; cursor: pointer; font-family: inherit;
+  transition: background 0.15s;
+}
+.tool-btn:hover { background: #26506b; color: #b3e2ff; }
+.tool-btn:active { transform: scale(0.98); }
+.tool-btn.meet { background: #1d3b2e; border-color: #2c5c46; color: #7fd6a8; }
+.tool-btn.meet:hover { background: #275339; color: #a5ebc4; }
+.tool-hint { font-size: 0.66rem; color: #5f7d8f; line-height: 1.5; margin-top: 7px; }
+
+/* ── Read aloud ── */
+.read-box {
+  background: #16242a; border: 1px solid #24454f;
+  border-radius: 8px; padding: 0.75rem 0.9rem; margin-bottom: 0.85rem;
+}
+.read-lbl { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.05em; color: #5fbecd; margin-bottom: 6px; }
+.read-roles { font-size: 0.84rem; color: #cfe8ee; line-height: 1.65; margin-bottom: 6px; }
+.read-roles b { color: #7fd6e8; }
+.read-note { font-size: 0.72rem; color: #6f909b; line-height: 1.5; font-style: italic; }
+
+/* ── Virtue ── */
+.virtue-box {
+  background: #2a2214; border: 1px solid #4d3d1c;
+  border-radius: 8px; padding: 0.8rem 0.95rem; margin-bottom: 0.85rem;
+}
+.virtue-lbl { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.05em; color: #d2a44e; margin-bottom: 5px; }
+.virtue-body { font-size: 0.88rem; color: #e0cba0; line-height: 1.65; margin-bottom: 7px; }
+.virtue-try { font-size: 0.78rem; color: #b0873c; line-height: 1.5; font-style: italic; }
+
+/* ── Group discussion ── */
+.group-box {
+  background: #1b2130; border: 1px solid #323c56;
+  border-radius: 8px; padding: 0.8rem 0.95rem; margin-bottom: 0.85rem;
+}
+.group-lbl { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.05em; color: #8b9fd4; margin-bottom: 6px; }
+.group-sub { font-size: 0.7rem; color: #6b7899; margin-bottom: 7px; line-height: 1.5; }
+.group-q {
+  font-size: 0.86rem; color: #ccd5ea; line-height: 1.6;
+  padding-left: 9px; border-left: 2px solid #3f4a68; margin-bottom: 7px;
+}
+.group-challenge {
+  margin-top: 9px; padding-top: 9px; border-top: 1px solid #323c56;
+  font-size: 0.86rem; color: #ccd5ea; line-height: 1.6;
+}
+.group-challenge b { color: #8b9fd4; font-size: 0.7rem; letter-spacing: 0.05em; display: block; margin-bottom: 4px; }
+
+/* ── Info boxes ── */
+.info-box { border-radius: 8px; padding: 0.75rem 0.9rem; margin-bottom: 0.85rem; }
+.box-lbl { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 4px; }
+.box-body { font-size: 0.88rem; line-height: 1.6; }
+.fact-box { background: #0d1e33; border: 1px solid #1a3a5c; }
+.fact-box .box-lbl { color: #4a9ede; }
+.fact-box .box-body { color: #a8c8e8; }
+.build-box { background: #0d2220; border: 1px solid #1f5048; }
+.build-box .box-lbl { color: #4fd1c5; }
+.build-box .box-body { color: #8fe0d6; }
+.think-box { background: #1e1e1e; border: 1px solid #333; }
+.think-box .box-lbl { color: #888; }
+.think-q {
+  font-size: 0.88rem; color: #c8c5c0; line-height: 1.55;
+  padding-left: 9px; border-left: 2px solid #444;
+  margin-bottom: 6px; font-style: italic;
+}
+.think-q:last-child { margin-bottom: 0; }
+
+/* ── Nav ── */
+.nav-row { display: flex; gap: 8px; padding: 0 1rem 0.5rem; }
+.nav-btn {
+  flex: 1; padding: 10px;
+  border: 1px solid #3a3a3a; border-radius: 8px;
+  background: transparent; color: #c0c0c0;
+  font-size: 0.88rem; font-family: inherit; cursor: pointer;
+  font-weight: 500; transition: background 0.15s;
+}
+.nav-btn:hover { background: #2a2a2a; }
+.nav-btn:active { transform: scale(0.98); }
+.nav-btn.primary { background: #217a6e; color: #fff; border-color: #217a6e; }
+.nav-btn.primary:hover { background: #2a9d8f; }
+
+/* ── Finish ── */
+.finish-card {
+  margin: 0 1rem 1rem;
+  background: #242424; border: 1px solid #333; border-radius: 12px;
+  overflow: hidden; display: none;
+}
+.finish-inner { padding: 2rem 1.2rem; text-align: center; }
+.finish-star { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+.finish-inner h2 { font-size: 1.3rem; font-weight: 600; color: #f0ede8; margin-bottom: 0.5rem; }
+.finish-inner p { font-size: 0.88rem; color: #999; line-height: 1.65; margin-bottom: 1rem; }
+.vocab-lbl { font-size: 0.68rem; font-weight: 700; color: #888; text-align: left; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 7px; }
+.vocab-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 1rem; text-align: left; }
+.vocab-chip { background: #1e1e1e; border: 1px solid #333; border-radius: 6px; padding: 5px 8px; font-size: 0.78rem; color: #c8c5c0; }
+
+/* ── Desktop: use the width ───────────────────────────────── */
+@media (min-width: 880px) {
+  .shell { max-width: 900px; padding-bottom: 3rem; }
+
+  .hdr { padding: 2rem 1.2rem 1.1rem; }
+  .hdr h1 { font-size: 1.9rem; }
+  .hdr p { font-size: 0.9rem; }
+  .hdr-banner { max-width: 900px; }
+
+  .prog-wrap, .dots-row { padding-left: 1.5rem; padding-right: 1.5rem; }
+  .dot { width: 32px; height: 32px; font-size: 0.8rem; }
+
+  .how-strip, .chapter-card, .finish-card { margin-left: 1.5rem; margin-right: 1.5rem; }
+  .nav-row { padding-left: 1.5rem; padding-right: 1.5rem; }
+
+  .card-title { font-size: 1.5rem; }
+  .story-text { font-size: 1.02rem; line-height: 1.8; }
+
+  /* two-column body */
+  .card-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 16px;
+    align-items: start;
+    padding: 1.2rem 1.4rem 1.4rem;
+  }
+  .card-body > .scene-icon,
+  .card-body > .story-text,
+  .card-body > .read-box,
+  .card-body > .tool-box,
+  .card-body > .map-box,
+  .card-body > .group-box { grid-column: 1 / -1; }
+
+  .card-body > .info-box,
+  .card-body > .virtue-box { margin-bottom: 14px; }
+
+  .scene-icon { font-size: 2.2rem; }
+
+  /* wider tap targets in the scheduler */
+  .tool-btn { min-width: 180px; }
+
+  .vocab-grid { grid-template-columns: 1fr 1fr 1fr; }
+  .finish-inner { padding: 2.5rem 2rem; }
+}
+
+@media (min-width: 1200px) {
+  .shell { max-width: 1000px; }
+  .hdr-banner { max-width: 1000px; }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <img class="hdr-banner" id="hdr-banner" src="header.png" alt=""
+       onerror="this.classList.add('missing')">
+
+  <div class="hdr">
+    <span class="hdr-icon" id="hdr-icon">🐾</span>
+    <h1>Rocket's Big Journey</h1>
+    <p>An interactive brick-building adventure — 3,100 miles from coast to coast!</p>
+  </div>
+  <div class="prog-wrap">
+    <div class="prog-row">
+      <span id="prog-label">Chapter 1 of 10</span>
+      <span id="miles-label">Starting out — 0 miles</span>
+    </div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div class="dots-row" id="dots-row"></div>
+  <div class="how-strip">
+    <strong>How to use this:</strong> Take turns reading each chapter out loud. Look up the real places on the map links. When you reach the <strong>Build Challenge</strong>, stop and build it with your bricks. Building with friends? Use <strong>Schedule this chapter</strong> to set up a session, and work through the group questions at the bottom together.
+  </div>
+  <div id="chapter-area"></div>
+  <div class="finish-card" id="finish-card"></div>
+
+  <div style="text-align:center;padding:1.5rem 1.2rem 0.5rem;font-size:0.7rem;color:#5a5a5a;line-height:1.6">
+    <div style="font-weight:600;color:#7a7a7a;margin-bottom:3px">Wild &amp; Rooted Co.</div>
+    Rocket&rsquo;s Big Journey &copy; 2026 Wild &amp; Rooted Co. All rights reserved.<br>
+    Not affiliated with, endorsed by, or sponsored by any toy or construction-brick manufacturer.<br>
+    Designed for use with generic interlocking building bricks of any brand.
+  </div>
+</div>
+
+<script>
+var chapters = [
+  {
+    icon:"🚛",tag:"Chapter 1 · Sacramento, California",title:"The Great Tumble",
+    miles:"0 miles",milesLong:"Starting out — 0 miles",
+    maps:[
+      {label:"Sacramento, CA",q:"Sacramento California"},
+      {label:"Interstate 80",q:"Interstate 80 Sacramento California"}
+    ],
+    story:"Deep inside a moving truck rumbling east on Interstate 80, a golden brick-built dog named Rocket was tucked safely inside a cardboard box. His family was moving all the way across the country — 3,100 miles from Sacramento, California to the rocky coast of Maine, where a lighthouse waited for them on a cliff above the sea. But somewhere outside Sacramento, the truck hit a monster pothole. Rocket's box tipped. He tumbled right out onto the grassy shoulder of the highway, and the truck rolled away without him. Rocket stood up, shook the dust off his plastic paws, and looked east down the long open road. He knew exactly where his family was headed. And he was going to walk every single mile to find them.",
+    factLabel:"Geography fact",
+    fact:"Sacramento is the capital of California, sitting in the Central Valley between the Sierra Nevada mountains to the east and the Coast Ranges to the west. From Sacramento to the coast of Maine is roughly 3,100 miles — one of the longest drives possible in the continental United States!",
+    build:"Before Rocket can start his journey, he needs to look the part! Build Rocket the Dog from your building bricks — any color, any size. Give him floppy ears, a collar with his name on it, or a tiny backpack packed with snacks for the road. Make him as brave and determined as you can. He has a very long way to go.",
+    think:["What does YOUR Rocket look like? Describe his best feature.","If you had to walk 3,100 miles, what three things would you absolutely bring?"]
+  },
+  {
+    icon:"🏔️",tag:"Chapter 2 · Sierra Nevada, California",title:"The Rushing River",
+    miles:"~250 miles",milesLong:"~250 miles from home",
+    maps:[
+      {label:"Sierra Nevada Mountains",q:"Sierra Nevada Mountains California"},
+      {label:"American River",q:"American River California"}
+    ],
+    story:"Rocket trotted east through the golden California foothills, his plastic paws clicking steadily on the warm asphalt. For three days he walked, sleeping under oak trees and watching hawks circle overhead. Then on the fourth morning, he heard it before he saw it — a deep rolling thunder that was not thunder at all. The American River came into view, swollen with snowmelt from the peaks above, crashing through the canyon in powerful churning currents. The bridge that should have been there was gone, washed away by a spring flood. The water spun fast enough to send a small plastic dog tumbling all the way back to Sacramento. Rocket sat on the bank, tail wagging slowly, and started thinking hard.",
+    factLabel:"Science fact",
+    fact:"The Sierra Nevada mountains stretch 400 miles through California and hold some of the deepest snowpack in North America. Every spring that snow melts and rushes down into rivers like the American, Merced, and Tuolumne — sometimes flooding roads and washing out bridges. A river's 'current' is the speed and direction its water flows.",
+    build:"Help Rocket cross the river! Build something that can carry him safely to the other side. You could build a sturdy bridge with side rails, a wooden raft with a paddle, a small sailboat, a hovering platform, or a zip-line contraption strung between two trees. Whatever you build — make sure Rocket actually fits on or inside it!",
+    think:["Did you build a bridge or a floating vehicle? What made you choose that?","Can you think of a third crossing method that is NOT a bridge or a boat?"]
+  },
+  {
+    icon:"🦂",tag:"Chapter 3 · Moab Desert, Utah",title:"The Canyon Creature",
+    miles:"~750 miles",milesLong:"~750 miles from home",
+    maps:[
+      {label:"Moab, Utah",q:"Moab Utah"},
+      {label:"Arches National Park",q:"Arches National Park Utah"},
+      {label:"Delicate Arch",q:"Delicate Arch Moab Utah"}
+    ],
+    story:"After crossing the Sierra Nevada and dropping down into Nevada, Rocket crossed into Utah and stopped dead in his tracks. The world had turned red. Towering sandstone arches rose around him like the ribs of some ancient buried giant. The canyon walls glowed copper and rust in the afternoon heat. This was Moab — one of the most dramatic landscapes in all of North America. But the narrow canyon trail ahead was blocked by the most extraordinary creature Rocket had ever seen: a scorpion the size of a school bus, built entirely from sun-bleached bricks, its tail curled high above the path, claws clicking slowly in the red dust. It was not evil. It was just very, very territorial. Rocket studied it carefully. Then he got to work.",
+    factLabel:"Science fact",
+    fact:"The Moab desert in southeastern Utah sits among some of the oldest exposed rock on Earth — the red sandstone formations there are over 150 million years old! Real scorpions are arachnids, related to spiders, and thrive in hot arid climates. They are mostly shy and only sting when threatened. Some species glow bright blue-green under ultraviolet light — scientists are still not entirely sure why!",
+    build:"Build something to get Rocket past the canyon scorpion! You could build the scorpion itself in full brick glory, a giant mechanical decoy dog to confuse it, a towering pile of glittering crystal treats it simply cannot resist, or a spectacular robot performer to distract it with a show. There is no wrong answer — just a creative one.",
+    think:["What did you build, and did your plan work in your imagination?","The Moab desert gets very little rain. What adaptations do you think plants and animals need to survive there?"]
+  },
+  {
+    icon:"⛰️",tag:"Chapter 4 · Rocky Mountains, Colorado",title:"The Blizzard Climb",
+    miles:"~1,100 miles",milesLong:"~1,100 miles from home",
+    maps:[
+      {label:"Rocky Mountain National Park",q:"Rocky Mountain National Park Colorado"},
+      {label:"Continental Divide",q:"Continental Divide Colorado"}
+    ],
+    story:"Out of the Utah desert and into Colorado, the ground rose sharply beneath Rocket's paws. First gently, then steeply, then dramatically — until he found himself surrounded by peaks that scraped the clouds. The Rocky Mountains. He had barely started up the first major pass when the sky turned the color of pewter and the wind began to scream. A blizzard came out of nowhere, the kind that swallows the trail and turns the world white in under an hour. Snow packed into the gaps between Rocket's bricks. Ice formed on his ears. The temperature dropped so fast he could feel it even through his plastic body. He needed shelter before dark — and then he needed a way to keep climbing in the morning.",
+    factLabel:"Geography fact",
+    fact:"The Rocky Mountains run 3,000 miles from British Columbia in Canada all the way to New Mexico. Running along their spine is the Continental Divide — an invisible line where water on the west side flows toward the Pacific Ocean and water on the east side flows toward the Atlantic. When Rocket crosses this line, every raindrop around him is heading a different direction than before!",
+    build:"Rocket needs shelter AND a way to keep climbing! Build a mountain basecamp — a sturdy hut with a roof strong enough to hold snow, walls thick enough to block the wind, and a door Rocket can seal shut. Or build a snow vehicle tough enough to push through blizzard conditions. Bonus challenge: can your build do BOTH at once?",
+    think:["What does shelter protect you from in a blizzard — name each specific danger?","Water falling just feet apart on the Continental Divide ends up in different oceans. How is that possible?"]
+  },
+  {
+    icon:"🏜️",tag:"Chapter 5 · Red Rocks, Colorado",title:"The Red Rocks Run",
+    miles:"~1,300 miles",milesLong:"~1,300 miles from home",
+    maps:[
+      {label:"Red Rocks Amphitheatre",q:"Red Rocks Amphitheatre Morrison Colorado"},
+      {label:"Morrison, Colorado",q:"Morrison Colorado"}
+    ],
+    story:"Coming down the eastern face of the Rockies, Rocket hit terrain unlike anything he had crossed before. The Colorado foothills were a wild maze of massive red sandstone formations — rust-colored slabs jutting from the earth at impossible angles, the ground cracked and uneven, laced with dry creek beds and loose rock that shifted under every step. No smooth road could take him through here. In the distance he spotted Red Rocks Amphitheatre — a legendary outdoor concert venue carved between two enormous red rock fins where music had been played under the open Colorado sky for over a hundred years. The only way through was over the rocks, across the creek beds, and straight through the most beautiful broken landscape Rocket had ever seen. He was going to need the right vehicle.",
+    factLabel:"Geology fact",
+    fact:"Red Rocks Amphitheatre near Morrison, Colorado sits between two 300-foot sandstone formations called Ship Rock and Creation Rock. The red color comes from iron oxide — the same chemical compound that makes rust red! The rocks formed over 300 million years ago when this region was a vast desert. The natural shape of the rock walls creates extraordinary acoustics, making it one of the most famous outdoor concert venues in the world.",
+    build:"Build Rocket an off-road vehicle tough enough to handle Colorado's broken terrain! It needs big chunky tires or tank treads, a strong reinforced frame, and enough ground clearance to roll over rocks and cross dry creek beds without getting stuck. Maybe it has a roll cage for safety, a winch to pull itself up steep rock faces, or extra wide tires for stability. Make it look like it means serious business.",
+    think:["What specific features make a vehicle good at off-roading — think about tires, weight, and height?","Red Rocks is famous for its natural acoustics. What do you think makes sound behave differently between two rock walls?"]
+  },
+  {
+    icon:"🏙️",tag:"Chapter 6 · Chicago, Illinois",title:"The City Detour",
+    miles:"~1,750 miles",milesLong:"~1,750 miles from home",
+    maps:[
+      {label:"Chicago, Illinois",q:"Chicago Illinois"},
+      {label:"Millennium Park",q:"Millennium Park Chicago"},
+      {label:"Cloud Gate (The Bean)",q:"Cloud Gate Chicago"}
+    ],
+    story:"Rocket rolled out of the Colorado foothills and across the vast flat plains of Kansas and Missouri, where the land stretched so wide and flat he could see the curvature of the earth at the horizon. Then rising out of nothing — a skyline appeared like a forest made of steel and glass. Chicago. The Windy City. He crossed the Chicago River on the Michigan Avenue Bridge, padded past Millennium Park, and spotted a giant silver bean-shaped sculpture reflecting a hundred tiny brick dogs back at him. A street musician played saxophone on the corner. Pigeons scattered. A hot dog cart sent glorious smells drifting past his plastic nose. Rocket loved every block of it. But the city was dense and the traffic relentless — he was going to need exactly the right vehicle to thread through it.",
+    factLabel:"Social studies fact",
+    fact:"Chicago is the third-largest city in the United States with about 2.7 million people. It sits on the southwestern shore of Lake Michigan and is famous for its bold architecture, deep-dish pizza, jazz and blues music, and the strong winds that blow off Lake Michigan — earning the nickname 'The Windy City.' The giant silver bean sculpture is officially called 'Cloud Gate' by artist Anish Kapoor, and it reflects and warps everything around it like a giant mirror.",
+    build:"Build Rocket a city vehicle to navigate the wild streets of Chicago! Ideas: a nimble taxi cab, a bicycle with a sidecar, a delivery scooter that can weave between cars, a tiny helicopter for flying above traffic, or a skateboard with a rocket booster. It needs to fit in tight spaces and move fast — and Rocket needs to fit inside it!",
+    think:["Have you ever been to a big city? What felt most overwhelming about it?","Chicago grew up right on Lake Michigan. Why do you think major cities often grow near large bodies of water?"]
+  },
+  {
+    icon:"🌊",tag:"Chapter 7 · Lake Erie, Ohio & Pennsylvania",title:"The Great Lakes Crossing",
+    miles:"~2,100 miles",milesLong:"~2,100 miles from home",
+    maps:[
+      {label:"Lake Erie",q:"Lake Erie"},
+      {label:"Cleveland, Ohio",q:"Cleveland Ohio"},
+      {label:"Erie, Pennsylvania",q:"Erie Pennsylvania"}
+    ],
+    story:"Out the other side of Chicago, Rocket pressed east through Indiana and into Ohio, wheels humming, tail wagging steadily. Then he stopped dead. Stretching in front of him — so wide he could not see the other side — was Lake Erie. It looked exactly like an ocean. The water was deep blue-gray, cold-looking even in the sun, with whitecapped waves rolling steadily toward the rocky shore. There was no bridge. There was no tunnel. If Rocket wanted to cut straight across to Pennsylvania and save himself two full days of walking around the lake's southern edge, he would need to build something genuinely seaworthy — something that could handle real waves on 25 miles of open, cold freshwater.",
+    factLabel:"Geography fact",
+    fact:"The five Great Lakes — Superior, Michigan, Huron, Erie, and Ontario — together hold about 21% of all the fresh surface water on Earth. Lake Erie is the shallowest and warmest of the five, but also the most prone to sudden fierce storms because shallow water builds waves faster than deep water. The Great Lakes form a natural border between the United States and Canada and are large enough to affect the weather of entire states around them.",
+    build:"Rocket needs to cross 25 miles of open lake water! Build a vessel tough enough for real waves and cold water. Ideas: a sturdy motorboat with a hull that cuts through chop, a catamaran with two hulls for extra stability, a submarine that travels under the waves entirely, a hovercraft that skims the surface, or a powerful tugboat. Think about what actually makes a boat not tip over!",
+    think:["What design features make a boat stable in rough water — think about hull shape, width, and weight?","The Great Lakes hold 21% of Earth's fresh surface water. Why is fresh water so much more valuable than salt water for humans and animals?"]
+  },
+  {
+    icon:"🌲",tag:"Chapter 8 · Adirondack Mountains, New York",title:"The Ancient Forest",
+    miles:"~2,600 miles",milesLong:"~2,600 miles from home",
+    maps:[
+      {label:"Adirondack Park",q:"Adirondack Park New York"},
+      {label:"Lake Placid, NY",q:"Lake Placid New York"},
+      {label:"Mount Marcy",q:"Mount Marcy New York"}
+    ],
+    story:"Through Pennsylvania and into upstate New York, the air changed — cooler, greener, smelling of pine and rain-soaked earth. Then the forest closed in around Rocket entirely. The Adirondack Mountains. Ancient beyond imagining, their peaks worn smooth by a billion years of weather, their slopes draped in dense white pine and sugar maple. The trails were beautiful but treacherous — steep, root-tangled, slick with moss. And blocking the only forest path forward was a family of raccoons built from midnight-black and silver bricks — enormous and mischievous, their bright eyes fixed on every shiny thing Rocket carried. His collar buckle. His plastic ears. The little silver tag that said his name. They were not moving. Not without persuasion.",
+    factLabel:"Nature fact",
+    fact:"The Adirondack Mountains in northern New York are among the oldest mountain ranges in the world — approximately one billion years old. Over that immense time, erosion has worn them down from what were once Himalaya-sized peaks to the gentle rounded summits they are today. Adirondack Park is larger than Yellowstone, Yosemite, Glacier, and the Grand Canyon National Parks combined, and is home to black bears, moose, bald eagles, loons, and very curious raccoons.",
+    build:"Help Rocket get past the Adirondack raccoon family! Build: a forest camouflage vehicle that blends into the trees so they cannot spot him, a dazzling pile of shiny decoy objects to distract them while Rocket sneaks past, a cozy forest shelter where he waits until they lose interest and wander off, or a rope bridge strung high above the forest floor so he goes right over them. What would you do?",
+    think:["Why are the Adirondacks so much shorter than the Rockies, even though they are far older?","Raccoons are curious and drawn to shiny things. Is curiosity in animals a survival advantage or a disadvantage?"]
+  },
+  {
+    icon:"🗽",tag:"Chapter 9 · New York City, New York",title:"The City That Never Sleeps",
+    miles:"~2,850 miles",milesLong:"~2,850 miles from home",
+    maps:[
+      {label:"New York City",q:"New York City"},
+      {label:"Statue of Liberty",q:"Statue of Liberty New York"},
+      {label:"Empire State Building",q:"Empire State Building New York"},
+      {label:"Brooklyn Bridge",q:"Brooklyn Bridge New York"}
+    ],
+    story:"Rocket followed the Hudson River south until the skyline appeared — towers and spires that caught the evening light and threw it back in every color at once. New York City. He crossed the George Washington Bridge at a trot, looking out over the Hudson River far below, the city blazing on both sides of it. He padded through the streets of Manhattan as evening fell — past street vendors selling pretzels, past yellow taxis honking in gridlock, past parks where dogs stopped to stare at him with deep professional curiosity. He could not stay long. Maine was still ahead, and his family was waiting. But he stopped long enough to see the one thing every traveler stops to see — and to build it right there on the sidewalk from the loose bricks rattling in his backpack.",
+    factLabel:"Fun fact",
+    fact:"New York City is home to about 8.3 million people — the largest city in the United States. The George Washington Bridge carries over 100 million vehicles per year and connects New Jersey to Manhattan. The Statue of Liberty was a gift from France to the United States in 1886 and stands 305 feet tall from ground to torch. The Empire State Building was the world's tallest building for 40 years after it was completed in 1931. The Brooklyn Bridge, opened in 1883, was the longest suspension bridge in the world at the time it was built.",
+    build:"Rocket has loose bricks in his backpack and one chance to build a New York City landmark right on the sidewalk! Choose your landmark: the Statue of Liberty with her torch held high, the Empire State Building with its pointed art deco crown, the Brooklyn Bridge with its famous Gothic stone towers and suspension cables, or any other NYC landmark you can picture. Make it recognizable!",
+    think:["Which NYC landmark did you build and what made you choose it?","New York City has over 8 million people living in it. What challenges do you think come with that many people in one place?"]
+  },
+  {
+    icon:"🌊",tag:"Chapter 10 · Acadia, Maine",title:"The Lighthouse at the Edge of the World",
+    miles:"~3,100 miles",milesLong:"3,100 miles — home!",
+    maps:[
+      {label:"Cadillac Mountain",q:"Cadillac Mountain Acadia National Park Maine"},
+      {label:"Acadia National Park",q:"Acadia National Park Maine"},
+      {label:"Bass Harbor Head Light",q:"Bass Harbor Head Lighthouse Maine"},
+      {label:"Bar Harbor, Maine",q:"Bar Harbor Maine"}
+    ],
+    story:"North from New York, Rocket followed the coast of New England — Connecticut, Rhode Island, Massachusetts, New Hampshire — the Atlantic Ocean appearing and disappearing through the trees to his right, cold and gray and vast. And then Maine. The air changed completely. Salt and spruce and cold clean wind. The rocky coast appeared, wave-carved and wild, the water crashing white against granite that had stood there since before the dinosaurs. He climbed the last winding road as the sky ahead began to lighten — pale gray going pink going gold. He was on Cadillac Mountain in Acadia National Park, the highest point on the entire eastern seaboard of the United States. The first place in the country to see the sun rise. And as the sun broke the horizon and flooded the rocky summit with copper light, Rocket looked down the coast — and he saw it. A white lighthouse on a cliff above the sea, its beam still sweeping the dark water below. And standing outside it, faces turned east into the sunrise, was his family. He ran. He barked his loudest, most joyful, most plastic bark. They turned. And the whole coast of Maine rang out with the kind of happiness that only comes when something impossible turns out not to be.",
+    factLabel:"Geography fact",
+    fact:"Cadillac Mountain in Acadia National Park, Maine, rises 1,530 feet above the Atlantic and is the highest point on the eastern seaboard. From October through March it is the first place in the entire United States to receive the light of the rising sun each morning. The coast of Maine has over 3,500 miles of tidal shoreline — more than California — because of its thousands of coves, inlets, and islands. Maine is home to more lighthouses per mile of coastline than any other state in the country.",
+    build:"Rocket's family has moved into a lighthouse on the coast of Maine — and now it's time to build it! Build a lighthouse: a tall tower with a light room at the very top, a keeper's cottage attached at the base, maybe a rocky cliff beneath it and waves crashing at its feet. Place Rocket right at the front door — tail up, ears forward, finally home. This is the build you have been working toward across 3,100 miles.",
+    think:["What do you think it would actually be like to live in a lighthouse on the coast of Maine?","Rocket never gave up across deserts, mountains, cities, lakes, and forests. What do you think kept him going — and what does that tell you about perseverance?"]
+  }
+];
+
+var VOCAB = ["current","arid","continental divide","terrain","seaworthy","acoustics","erosion","perseverance","resilience","tidal","landmark","detour"];
+var VIRTUES = {"1": {"name": "Respect", "body": "Respect is undivided attention, pointed at something that matters. Rocket's whole journey begins because he decides his family is worth three thousand miles of walking. Today, when someone in your group reads aloud, notice what happens in the room. The quiet that settles when people are really listening is its own kind of gift - and you get to give it.", "practice": "Let the reader finish. Don't jump in to correct a stumbled word."}, "2": {"name": "Patience", "body": "Rocket sits down on that riverbank. He doesn't charge in. He doesn't panic. He sits with a hard problem long enough to actually see it. That pause is not wasted time - it's where the good idea comes from. The same is true at the build table. The best solutions almost never arrive in the first thirty seconds.", "practice": "If a build isn't working, set it down for a minute instead of forcing it."}, "3": {"name": "Understanding", "body": "The scorpion is not a villain. It is standing in front of its home, doing what anything would do. Rocket figures that out, and everything changes. Most of the time, when someone seems difficult, there's a reason underneath that you can't see yet. Looking for that reason is one of the most useful habits a person can build.", "practice": "When someone's build is very different from yours, ask why before deciding it's wrong."}, "4": {"name": "Courage", "body": "Courage isn't the absence of fear - Rocket is cold, and the storm is genuinely dangerous. Courage is walking forward anyway, because something on the other side matters more than the fear does. Small versions of this happen constantly: speaking up, trying the hard thing, reading out loud when your voice shakes a little.", "practice": "Volunteer to read even if you'd rather not. That's the whole exercise."}, "5": {"name": "Resourcefulness", "body": "There is no road through the red rocks. So Rocket stops looking for one and builds what the land actually requires. Resourcefulness is what's left when the obvious answer is gone - and it's a skill, not a talent. Every time you're missing the piece you wanted and you find something better, you're practicing it.", "practice": "Missing a piece? Don't stop. Substitute. That's the real engineering."}, "6": {"name": "Wonder", "body": "Chicago could have overwhelmed him. It's loud and enormous and nothing like the quiet roads he'd been walking. Instead, Rocket loves it. Wonder is a choice you make about how to meet something new - and people who keep choosing it stay interested in the world their whole lives.", "practice": "Find one thing in this chapter you'd never heard of and look it up."}, "7": {"name": "Discernment", "body": "Crossing twenty-five miles of open water to save two days of walking - is that brave or is that reckless? Rocket has to judge it honestly. Discernment is the quiet skill of telling the difference between a risk worth taking and one that just looks exciting. It gets sharper every time you actually stop and ask the question.", "practice": "Before you build, ask: would this actually work? Then build it anyway if you want."}, "8": {"name": "Humility", "body": "These mountains are a billion years old. They were once as tall as the Himalayas, and time wore them down to something gentler - and they are still here. There's something worth sitting with in that. Being small next to something vast isn't diminishing. It's clarifying.", "practice": "Listen to someone younger than you explain their build. Really listen."}, "9": {"name": "Kindness", "body": "Eight million people, and Rocket moves through them gently - a nod here, a moment there, nothing dramatic. Most kindness is like that. It isn't the grand gesture. It's how you treat people you'll never see again, when there's no reason to bother and you bother anyway.", "practice": "Say one specific, true thing you liked about someone else's build."}, "10": {"name": "Perseverance", "body": "Three thousand one hundred miles. Rivers, deserts, blizzards, cities, an entire Great Lake. And the thing the story keeps telling you is this: his tail never stopped wagging. Perseverance isn't grim. The people who finish long, hard things are usually the ones who found a way to enjoy the walking.", "practice": "Look back at your first build and your last one. Notice how far you came."}};
+var GROUPQ = {"1": {"warm": ["Rocket could have sat down and waited for someone to find him. Instead he decided to walk 3,100 miles. What do you think made him so sure?", "Everyone describe your Rocket in one sentence. What made you all picture him differently?"], "challenge": "Everyone built the same character from the same description - and no two are alike. Why?"}, "2": {"warm": ["What's the difference between a solution that's safe and a solution that's fast? Which did your group pick?", "Did anyone build something nobody else thought of? Walk us through it."], "challenge": "Rank your group's crossings from most realistic to most imaginative. Is the most realistic one also the best one?"}, "3": {"warm": ["The scorpion isn't evil - it's territorial. Has anyone ever misjudged someone as mean when they were just protecting something?", "Who tried to trick the scorpion and who tried to work with it? Which approach do you respect more?"], "challenge": "Split your group: half argue that outsmarting the scorpion was right, half argue Rocket should have found another route entirely."}, "4": {"warm": ["What's more important in a blizzard - shelter or the ability to keep moving? Defend your answer.", "Compare your shelters. Whose would actually survive a real storm, and why?"], "challenge": "As a group, combine the best feature from every single build into one imaginary super-shelter. Describe it."}, "5": {"warm": ["What makes a vehicle good at off-roading? Everyone name one feature, no repeats.", "Whose vehicle could carry the most cargo? Whose could go the fastest? Are those the same build?"], "challenge": "If your group had to cross Colorado together in ONE vehicle, which one would you pick and what would you change?"}, "6": {"warm": ["What's the loudest, busiest place you've each ever been? How did it feel?", "Whose city vehicle would actually work in real Chicago traffic? Whose would get a ticket?"], "challenge": "Design a city where Rocket wouldn't need a vehicle at all. What would that city need?"}, "7": {"warm": ["Everyone predict: whose boat would stay upright longest in a real storm? Then say why.", "What did your group learn about hull shape from comparing builds?"], "challenge": "The Great Lakes hold 21% of Earth's fresh water. As a group, list five things that would change if they dried up."}, "8": {"warm": ["Would you sneak past the raccoons, distract them, or wait them out? Everyone commit before discussing.", "The Adirondacks are a billion years old. What else can your group name that's older than the mountains?"], "challenge": "Retell this chapter as a group - each person adds one sentence, going around the circle."}, "9": {"warm": ["Everyone name the NYC landmark you built and why it mattered to you.", "Line the builds up. Which one would a stranger recognize fastest? What makes something recognizable?"], "challenge": "Your group is designing a brand-new landmark for a brand-new city. What is it and what does it celebrate?"}, "10": {"warm": ["Rocket crossed 3,100 miles alone. What's the hardest thing anyone here has ever finished?", "Compare lighthouses. Whose looks safest? Whose looks loneliest? Whose would you want to live in?"], "challenge": "Go around the circle: each person names ONE moment from Rocket's journey they'll remember, and why."}};
+
+function readerRoles(n) {
+  var roles = ['the story', 'the fact box', 'the build challenge and the questions'];
+  var shift = (n - 1) % 3;
+  return [roles[shift % 3], roles[(1+shift) % 3], roles[(2+shift) % 3]];
+}
+
+var cur = 0;
+
+function mapUrl(q) {
+  return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q);
+}
+
+/* ── Google Calendar scheduling ───────────────────────────── */
+function pad(n) { return (n < 10 ? '0' : '') + n; }
+
+function fmtStamp(d) {
+  return d.getUTCFullYear() + pad(d.getUTCMonth()+1) + pad(d.getUTCDate()) + 'T' +
+         pad(d.getUTCHours()) + pad(d.getUTCMinutes()) + '00Z';
+}
+
+function defaultDate() {
+  var d = new Date();
+  d.setDate(d.getDate() + 1);
+  return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+}
+
+function buildCalendarUrl(chapterIdx, recurring) {
+  var c = chapters[chapterIdx];
+  var dateEl = document.getElementById('sched-date');
+  var timeEl = document.getElementById('sched-time');
+  var mailEl = document.getElementById('sched-guests');
+
+  var dateStr = (dateEl && dateEl.value) ? dateEl.value : defaultDate();
+  var timeStr = (timeEl && timeEl.value) ? timeEl.value : '10:00';
+
+  var parts = dateStr.split('-');
+  var tp = timeStr.split(':');
+  var start = new Date(parseInt(parts[0],10), parseInt(parts[1],10)-1, parseInt(parts[2],10),
+                       parseInt(tp[0],10), parseInt(tp[1],10), 0);
+  var end = new Date(start.getTime() + 60*60*1000);
+
+  var title = "Rocket's Big Journey - Chapter " + (chapterIdx+1) + ': ' + c.title;
+  var places = [];
+  if (c.maps) { for (var m = 0; m < c.maps.length; m++) places.push(c.maps[m].label); }
+
+  var details =
+    'BUILD CHALLENGE\n' + c.build +
+    '\n\n' + c.factLabel.toUpperCase() + '\n' + c.fact +
+    '\n\nTHINK ABOUT IT\n- ' + c.think.join('\n- ') +
+    '\n\nPLACES TO LOOK UP\n' + places.join(', ') +
+    '\n\nTip: click "Add Google Meet" on this event to give everyone a video link.';
+
+  var url = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
+  url += '&text=' + encodeURIComponent(title);
+  url += '&dates=' + fmtStamp(start) + '/' + fmtStamp(end);
+  url += '&details=' + encodeURIComponent(details);
+  url += '&location=' + encodeURIComponent(places.length ? places[0] : 'Anywhere with a bin of bricks');
+
+  if (recurring) url += '&recur=' + encodeURIComponent('RRULE:FREQ=WEEKLY;COUNT=10');
+
+  if (mailEl && mailEl.value.trim()) {
+    var emails = mailEl.value.split(/[\s,;]+/).filter(function(e){ return e.indexOf('@') > 0; });
+    if (emails.length) url += '&add=' + encodeURIComponent(emails.join(','));
+  }
+  return url;
+}
+
+function openCalendar(recurring) {
+  window.open(buildCalendarUrl(cur, recurring), '_blank', 'noopener');
+}
+
+function openMeet() {
+  window.open('https://meet.google.com/new', '_blank', 'noopener');
+}
+
+function renderChapter(i) {
+  var c = chapters[i];
+  var isLast = (i === chapters.length - 1);
+  var mapHtml = '';
+  if (c.maps && c.maps.length) {
+    mapHtml += '<div class="map-box"><div class="map-lbl">EXPLORE THESE REAL PLACES</div><div class="map-links">';
+    for (var m = 0; m < c.maps.length; m++) {
+      mapHtml += '<a class="map-link" href="' + mapUrl(c.maps[m].q) + '" target="_blank" rel="noopener noreferrer">' + c.maps[m].label + '</a>';
+    }
+    mapHtml += '</div></div>';
+  }
+
+  var toolHtml = ''
+    + '<div class="tool-box">'
+    + '<div class="tool-lbl">SCHEDULE THIS CHAPTER</div>'
+    + '<div class="tool-row">'
+    + '<div class="tool-field"><label>Date</label>'
+    + '<input class="tool-input" type="date" id="sched-date" value="' + defaultDate() + '"></div>'
+    + '<div class="tool-field"><label>Start time</label>'
+    + '<input class="tool-input" type="time" id="sched-time" value="10:00"></div>'
+    + '</div>'
+    + '<div class="tool-row">'
+    + '<div class="tool-field" style="flex:1 1 100%"><label>Invite friends (emails, separated by commas)</label>'
+    + '<input class="tool-input" type="text" id="sched-guests" placeholder="friend@example.com, cousin@example.com"></div>'
+    + '</div>'
+    + '<div class="tool-btns">'
+    + '<button class="tool-btn" onclick="openCalendar(false)">Add to Google Calendar</button>'
+    + '<button class="tool-btn" onclick="openCalendar(true)">Schedule all 10 weekly</button>'
+    + '</div>'
+    + '<div class="tool-btns" style="margin-top:7px">'
+    + '<button class="tool-btn meet" onclick="openMeet()">Start a Google Meet now</button>'
+    + '</div>'
+    + '<div class="tool-hint">The calendar event arrives pre-filled with the build challenge and '
+    + 'discussion questions. Once it opens, click <b>Add Google Meet</b> to attach a video link &mdash; '
+    + 'everyone you invited gets it automatically.</div>'
+    + '</div>';
+
+  var html = '';
+  html += '<div class="chapter-card">';
+  html += '<div class="card-head"><div class="card-tag">' + c.tag + '</div>';
+  html += '<div class="card-title">' + c.title + '</div></div>';
+  html += '<div class="card-body">';
+  html += '<div class="scene-icon">' + c.icon + '</div>';
+  var roles = readerRoles(i + 1);
+  html += '<div class="read-box">'
+       +  '<div class="read-lbl">READ IT OUT LOUD</div>'
+       +  '<div class="read-roles"><b>Reader 1</b> reads ' + roles[0]
+       +  ' &middot; <b>Reader 2</b> reads ' + roles[1]
+       +  ' &middot; <b>Reader 3</b> reads ' + roles[2]
+       +  ' &middot; <b>A grown-up</b> reads the virtue at the end</div>'
+       +  '<div class="read-note">Fewer readers? Split it however works. '
+       +  'On your own? Read it aloud anyway. Tired today? '
+       +  'A grown-up reads and you listen &mdash; that counts too.</div>'
+       +  '</div>';
+  html += '<p class="story-text">' + c.story + '</p>';
+  html += toolHtml;
+  html += mapHtml;
+  html += '<div class="info-box fact-box"><div class="box-lbl">' + c.factLabel.toUpperCase() + '</div><div class="box-body">' + c.fact + '</div></div>';
+  html += '<div class="info-box build-box"><div class="box-lbl">BUILD CHALLENGE</div><div class="box-body">' + c.build + '</div></div>';
+  html += '<div class="info-box think-box"><div class="box-lbl">THINK ABOUT IT</div>';
+  for (var q = 0; q < c.think.length; q++) { html += '<div class="think-q">' + c.think[q] + '</div>'; }
+  html += '</div>';
+
+  var v = VIRTUES[i + 1];
+  if (v) {
+    html += '<div class="virtue-box">'
+         +  '<div class="virtue-lbl">THIS CHAPTER&rsquo;S VIRTUE &middot; ' + v.name.toUpperCase() + '</div>'
+         +  '<div class="virtue-body">' + v.body + '</div>'
+         +  '<div class="virtue-try">Try this: ' + v.practice
+         +  ' &nbsp;Any questions, or anything you&rsquo;d add?</div>'
+         +  '</div>';
+  }
+
+  var g = GROUPQ[i + 1];
+  if (g) {
+    html += '<div class="group-box">'
+         +  '<div class="group-lbl">BUILDING WITH A GROUP?</div>'
+         +  '<div class="group-sub">Talk these through together before anyone starts building.</div>';
+    for (var w = 0; w < g.warm.length; w++) {
+      html += '<div class="group-q">' + g.warm[w] + '</div>';
+    }
+    html += '<div class="group-challenge"><b>AFTER YOU BUILD &mdash; COMPARE</b>' + g.challenge + '</div>';
+    html += '</div>';
+  }
+
+  html += '</div></div>';
+  html += '<div class="nav-row">';
+  if (i > 0) html += '<button class="nav-btn" onclick="goTo(' + (i-1) + ')">&#8592; Back</button>';
+  html += '<button class="nav-btn primary" onclick="advance()">' + (isLast ? 'Finish the journey' : 'Build it, then continue &#8594;') + '</button>';
+  html += '</div>';
+  return html;
+}
+
+function renderFinish() {
+  var html = '<div class="finish-inner">';
+  html += '<span class="finish-star">&#9733;</span>';
+  html += '<h2>Rocket is home.</h2>';
+  html += '<p>3,100 miles. 10 chapters. 10 builds. From the Central Valley of California to a lighthouse cliff on the coast of Maine. Rocket never once stopped wagging his tail — and you never once stopped building. That\'s something.</p>';
+  html += '<div class="vocab-lbl">Words you learned on the journey</div>';
+  html += '<div class="vocab-grid">';
+  for (var i = 0; i < VOCAB.length; i++) { html += '<div class="vocab-chip">' + VOCAB[i] + '</div>'; }
+  html += '</div>';
+  html += '<button class="nav-btn primary" style="width:100%;margin-top:0.5rem" onclick="restart()">Start the journey again</button>';
+  html += '</div>';
+  return html;
+}
+
+function updateUI() {
+  var pct = Math.round((cur / (chapters.length - 1)) * 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-label').textContent = 'Chapter ' + (cur + 1) + ' of ' + chapters.length;
+  document.getElementById('miles-label').textContent = chapters[cur].milesLong;
+  var dots = document.querySelectorAll('.dot');
+  for (var i = 0; i < dots.length; i++) {
+    dots[i].className = 'dot';
+    if (i < cur) dots[i].className = 'dot done';
+    else if (i === cur) dots[i].className = 'dot active';
+  }
+}
+
+function goTo(i) {
+  cur = i;
+  document.getElementById('finish-card').style.display = 'none';
+  document.getElementById('chapter-area').innerHTML = renderChapter(cur);
+  updateUI(); window.scrollTo(0, 0);
+}
+
+function advance() {
+  if (cur < chapters.length - 1) {
+    cur++;
+    document.getElementById('chapter-area').innerHTML = renderChapter(cur);
+    updateUI(); window.scrollTo(0, 0);
+  } else {
+    document.getElementById('chapter-area').innerHTML = '';
+    var fc = document.getElementById('finish-card');
+    fc.innerHTML = renderFinish(); fc.style.display = 'block';
+    document.getElementById('prog-fill').style.width = '100%';
+    document.getElementById('prog-label').textContent = 'Journey complete!';
+    document.getElementById('miles-label').textContent = '3,100 miles — home!';
+    var dots = document.querySelectorAll('.dot');
+    for (var i = 0; i < dots.length; i++) dots[i].className = 'dot done';
+    window.scrollTo(0, 0);
+  }
+}
+
+function restart() {
+  cur = 0;
+  document.getElementById('finish-card').style.display = 'none';
+  document.getElementById('chapter-area').innerHTML = renderChapter(0);
+  updateUI(); window.scrollTo(0, 0);
+}
+
+var dotsRow = document.getElementById('dots-row');
+for (var d = 0; d < chapters.length; d++) {
+  (function(idx) {
+    var b = document.createElement('button');
+    b.className = 'dot'; b.textContent = idx + 1;
+    b.onclick = function() { goTo(idx); };
+    dotsRow.appendChild(b);
+  })(d);
+}
+var _b = document.getElementById('hdr-banner');
+if (_b) {
+  _b.addEventListener('load', function() {
+    var ic = document.getElementById('hdr-icon');
+    if (ic) ic.style.display = 'none';
+  });
+}
+
+document.getElementById('chapter-area').innerHTML = renderChapter(0);
+updateUI();
+</script>
+</body>
+</html>
